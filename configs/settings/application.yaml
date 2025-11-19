@@ -1,0 +1,10 @@
+environment: development
+api:
+  host: 0.0.0.0
+  port: 8000
+database:
+  url: ${DATABASE_URL}
+cache:
+  url: ${REDIS_URL}
+scoring:
+  refresh_interval_minutes: 5

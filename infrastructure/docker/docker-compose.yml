@@ -1,0 +1,64 @@
+version: "3.9"
+
+services:
+  backend:
+    build:
+      context: ../../
+      dockerfile: infrastructure/docker/backend.Dockerfile
+    command: uvicorn dealflow_backend.main:app --host 0.0.0.0 --port 8000
+    volumes:
+      - ../../apps/backend/src:/app/src
+    ports:
+      - "8000:8000"
+    env_file:
+      - ../../configs/env/backend.env.example
+    depends_on:
+      - postgres
+      - redis
+
+  frontend:
+    build:
+      context: ../../
+      dockerfile: infrastructure/docker/frontend.Dockerfile
+    command: npm run dev
+    working_dir: /app/apps/frontend
+    volumes:
+      - ../../apps/frontend:/app/apps/frontend
+    ports:
+      - "3000:3000"
+    env_file:
+      - ../../configs/env/frontend.env.example
+    depends_on:
+      - backend
+
+  worker:
+    build:
+      context: ../../
+      dockerfile: infrastructure/docker/worker.Dockerfile
+    command: python -m dealflow_worker.main
+    volumes:
+      - ../../apps/worker/src:/app/src
+    env_file:
+      - ../../configs/env/worker.env.example
+    depends_on:
+      - redis
+      - postgres
+
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: dealflow
+      POSTGRES_USER: dealflow
+      POSTGRES_PASSWORD: dealflow
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+volumes:
+  postgres_data:
