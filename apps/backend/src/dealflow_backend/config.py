@@ -3,8 +3,12 @@ from __future__ import annotations
 from functools import lru_cache
 from pathlib import Path
 
-from pydantic import Field
+from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+INSECURE_DEFAULT_DATABASE_URL = (
+    "postgresql+asyncpg://dealflow:dealflow@localhost:5432/dealflow"
+)
 
 
 class Settings(BaseSettings):
@@ -12,7 +16,7 @@ class Settings(BaseSettings):
 
     environment: str = Field(default="development", alias="ENVIRONMENT")
     database_url: str = Field(
-        default="postgresql+asyncpg://dealflow:dealflow@localhost:5432/dealflow",
+        default=INSECURE_DEFAULT_DATABASE_URL,
         alias="DATABASE_URL",
     )
     redis_url: str = Field(default="redis://localhost:6379/0", alias="REDIS_URL")
@@ -20,7 +24,24 @@ class Settings(BaseSettings):
     api_prefix: str = Field(default="/api")
     docs_url: str = Field(default="/docs")
     openapi_url: str = Field(default="/openapi.json")
+    cors_allow_origins: list[str] = Field(
+        default_factory=lambda: ["http://localhost:3000"],
+        alias="CORS_ALLOW_ORIGINS",
+    )
     sqlalchemy_echo: bool = Field(default=False, alias="SQLALCHEMY_ECHO")
+
+    @model_validator(mode="after")
+    def _reject_insecure_defaults_in_production(self) -> "Settings":
+        """Fail fast if production is left on the local development defaults."""
+        if (
+            self.environment == "production"
+            and self.database_url == INSECURE_DEFAULT_DATABASE_URL
+        ):
+            raise ValueError(
+                "DATABASE_URL must be set explicitly in production; "
+                "the local development default is not permitted."
+            )
+        return self
 
     model_config = SettingsConfigDict(
         env_file=[
