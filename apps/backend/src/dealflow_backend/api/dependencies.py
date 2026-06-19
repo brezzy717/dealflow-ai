@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 from fastapi import Depends, Header, HTTPException, status
 
+from ..auth import ClerkVerifierError, get_clerk_verifier
 from ..config import Settings, get_settings
 from ..services.lead_service import LeadService
 
@@ -18,21 +19,14 @@ def get_lead_service(settings: Settings = Depends(get_app_settings)) -> LeadServ
 
 @dataclass(frozen=True)
 class AuthenticatedUser:
-    """Identity resolved from the incoming request's bearer token."""
+    """Identity resolved from a verified Clerk session token."""
 
     user_id: str
     tenant_id: str | None = None
+    claims: dict | None = None
 
 
-async def get_current_user(
-    authorization: str | None = Header(default=None),
-) -> AuthenticatedUser:
-    """Placeholder auth dependency.
-
-    Phase 1 replaces this body with Clerk JWT verification (signature, issuer,
-    and expiry checks) that resolves the user and tenant. It already rejects
-    missing/malformed credentials so protected routes can depend on it today.
-    """
+def _bearer_token(authorization: str | None) -> str:
     if not authorization or not authorization.lower().startswith("bearer "):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -46,5 +40,41 @@ async def get_current_user(
             detail="Empty bearer token.",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    # NOTE: token is not yet cryptographically verified — see docstring.
-    return AuthenticatedUser(user_id="pending-clerk-integration")
+    return token
+
+
+async def get_current_user(
+    authorization: str | None = Header(default=None),
+) -> AuthenticatedUser:
+    """Resolve and verify the caller from the Clerk session token.
+
+    The tenant is taken from the Clerk organization claim (``org_id``); a custom
+    ``tenant_id`` claim takes precedence when present.
+    """
+    token = _bearer_token(authorization)
+
+    verifier = get_clerk_verifier()
+    if verifier is None:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Authentication is not configured.",
+        )
+
+    try:
+        claims = verifier.verify(token)
+    except ClerkVerifierError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired token.",
+            headers={"WWW-Authenticate": "Bearer"},
+        ) from None
+
+    user_id = claims.get("sub")
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token is missing a subject.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    tenant_id = claims.get("tenant_id") or claims.get("org_id")
+    return AuthenticatedUser(user_id=user_id, tenant_id=tenant_id, claims=claims)

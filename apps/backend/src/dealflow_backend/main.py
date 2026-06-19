@@ -4,7 +4,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
 
-from .api.routes import router
+from .api.routes import api_router, router
 from .config import Settings, get_settings
 from .core.logging import configure_logging
 
@@ -46,9 +46,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         allow_headers=["*"],
     )
 
-    # Health/probe routes stay at the root; product routes will be namespaced
-    # under the configured API prefix as versioned endpoints grow underneath it.
+    # Health/probe routes stay at the root; product routes are namespaced under
+    # the configured API prefix.
     app.include_router(router)
+    app.include_router(api_router)
 
     return app
 

@@ -30,17 +30,30 @@ class Settings(BaseSettings):
     )
     sqlalchemy_echo: bool = Field(default=False, alias="SQLALCHEMY_ECHO")
 
+    # Clerk auth (JWT verification). JWKS URL + issuer are required to enforce
+    # auth; audience is optional. See dealflow_backend/auth/clerk.py.
+    clerk_jwks_url: str | None = Field(default=None, alias="CLERK_JWKS_URL")
+    clerk_issuer: str | None = Field(default=None, alias="CLERK_ISSUER")
+    clerk_audience: str | None = Field(default=None, alias="CLERK_AUDIENCE")
+
+    @property
+    def auth_configured(self) -> bool:
+        return bool(self.clerk_jwks_url and self.clerk_issuer)
+
     @model_validator(mode="after")
     def _reject_insecure_defaults_in_production(self) -> "Settings":
         """Fail fast if production is left on the local development defaults."""
-        if (
-            self.environment == "production"
-            and self.database_url == INSECURE_DEFAULT_DATABASE_URL
-        ):
-            raise ValueError(
-                "DATABASE_URL must be set explicitly in production; "
-                "the local development default is not permitted."
-            )
+        if self.environment == "production":
+            if self.database_url == INSECURE_DEFAULT_DATABASE_URL:
+                raise ValueError(
+                    "DATABASE_URL must be set explicitly in production; "
+                    "the local development default is not permitted."
+                )
+            if not self.auth_configured:
+                raise ValueError(
+                    "CLERK_JWKS_URL and CLERK_ISSUER must be set in production "
+                    "to enforce authentication."
+                )
         return self
 
     model_config = SettingsConfigDict(
