@@ -31,3 +31,10 @@ dev = [
 
 [project.urls]
 Repository = "https://github.com/dealflow-ai/platform"
+
+[tool.mypy]
+# The scoring/ingestion packages are optional at type-check time (imported
+# lazily inside the pipeline). Don't fail when they are not installed.
+[[tool.mypy.overrides]]
+module = ["dealflow_scoring.*", "dealflow_ingestion.*"]
+ignore_missing_imports = true

@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dealflow-scoring"
+version = "0.1.0"
+description = "DealFlow AI 3-model ensemble scoring engine"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=1.26",
+    "scikit-learn>=1.4",
+    "xgboost>=2.0",
+    "joblib>=1.3"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4",
+    "ruff>=0.3"
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]

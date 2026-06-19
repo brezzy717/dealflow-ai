@@ -1,0 +1,126 @@
+# DealFlow AI — Requirements Coverage Ledger
+
+> The guard against "thin slices losing requirements." Every capability in
+> `MASTER_BUILD_SPEC.md` is listed here with a status and the phase that owns it.
+> A vertical slice may implement a *narrow* path through a row (e.g. one data
+> source) — but the row stays open until the full requirement is met. Update this
+> file in the same PR as the code it tracks.
+>
+> Status legend: ✅ done · 🟦 partial (slice) · ⬜ not started
+
+## Legend of "partial"
+A 🟦 row means a working path exists but the requirement is not fully met. The
+"Gap / remaining" column states exactly what is still owed so it cannot be lost.
+
+---
+
+## 1. Data ingestion (spec §4)
+
+| # | Requirement | Status | Phase | Gap / remaining |
+|---|---|---|---|---|
+| 1.1 | Pluggable pipeline base (fetch/transform/load) | ✅ | 0 | — |
+| 1.2 | Synthetic/seed source for end-to-end dev | 🟦 | 2 | real connectors below replace it |
+| 1.3 | Dewey Data connector (ATTOM, Builty, PDL, SafeGraph, BrightQuery, WageScape…) | ⬜ | 4 | API client + dataset mappers |
+| 1.4 | Yelp connector | ⬜ | 4 | — |
+| 1.5 | NASDAQ connector | ⬜ | 4 | — |
+| 1.6 | SEC/EDGAR connector | ⬜ | 4 | — |
+| 1.7 | Data.gov connector | ⬜ | 4 | — |
+| 1.8 | Dedup (business name + address) | 🟦 | 2 | dedup_key only; fuzzy match owed |
+| 1.9 | Missing-data defaults + type validation | 🟦 | 2 | basic; full validation owed |
+| 1.10 | 2–3×/week scheduled ingest + event rescoring | ⬜ | 4 | scheduler (Inngest/cron) |
+
+## 2. ML scoring engine (spec §3)
+
+| # | Requirement | Status | Phase | Gap / remaining |
+|---|---|---|---|---|
+| 2.1 | Canonical 52-feature catalog (`FEATURE_KEYS`) | ✅ | 2 | — |
+| 2.2 | Feature extraction from a lead | 🟦 | 2 | derivations for ~core features; rest defaulted |
+| 2.3 | 3-model ensemble (XGBoost, RandomForest, MLP+scaler) | 🟦 | 2 | trained on synthetic data; real training set owed |
+| 2.4 | Weighted average + confidence + variance | ✅ | 2 | — |
+| 2.5 | Tier assignment (Green/Yellow/Red/Monitor) | ✅ | 2 | — |
+| 2.6 | Feature attribution (top 5 ±) | 🟦 | 2 | importance×value heuristic; SHAP owed |
+| 2.7 | Plain-English explanation | 🟦 | 2 | template-based; richer NL owed |
+| 2.8 | Persist `ensemble_predictions` (timestamped, append-only) | 🟦 | 2 | written by orchestrator |
+| 2.9 | Model versioning (`model_versions`) | ⬜ | 3 | registry + artifact storage |
+| 2.10 | Adaptive ensemble weights (`ensemble_weights`) | ⬜ | 3 | — |
+| 2.11 | Drift detection | ⬜ | 3 | — |
+| 2.12 | Two-stage feedback retraining (booked → closed) | ⬜ | 3 | — |
+| 2.13 | Deterministic 100-point rules grid (explainability baseline) | ⬜ | 3 | — |
+
+## 3. Assignment engine (spec §5)
+
+| # | Requirement | Status | Phase | Gap / remaining |
+|---|---|---|---|---|
+| 3.1 | Parameter gating (years, employees, revenue, omit industries/locations) | 🟦 | 2 | core filters; full parity owed |
+| 3.2 | Round-robin slow-drip (30/wk, 10/10/10) | 🟦 | 2 | logic built; weekly scheduling owed (Phase 4) |
+| 3.3 | Color-block fallback (short tier → next down) | ✅ | 2 | — |
+| 3.4 | Permanent single ownership (unique lead_id) | ✅ | 1 | — |
+| 3.5 | Clawback on broker departure pre-contact | 🟦 | 2 | function built; admin trigger Phase 8 |
+| 3.6 | Tue 06:00 scheduled assignment | ⬜ | 4 | scheduler |
+| 3.7 | Action-gating (no action → no next drop) | ⬜ | 4 | — |
+
+## 4. Outreach automation (spec §6)
+
+| # | Requirement | Status | Phase | Gap / remaining |
+|---|---|---|---|---|
+| 4.1 | Day-0 email + value PDFs + booking link | ⬜ | 5 | email provider + templates |
+| 4.2 | Cal.com self-hosted booking | ⬜ | 5 | — |
+| 4.3 | Hume AI calling concierge + Twilio (Re-tell fallback) | ⬜ | 5 | — |
+| 4.4 | Call recording + transcription | ⬜ | 5 | — |
+| 4.5 | Outcome state machine (booked/dnc/interested/no_contact + callbacks) | ⬜ | 5 | model enum exists; flow owed |
+| 4.6 | Opt-in toggle (concierge vs manual) | 🟦 | 1 | `warm_outreach_opt_in` field; flow owed |
+
+## 5. Dashboard — broker (spec §7)
+
+| # | Requirement | Status | Phase | Gap / remaining |
+|---|---|---|---|---|
+| 5.1 | Auth + app shell / nav | ⬜ | 6 | Clerk frontend + layout |
+| 5.2 | Prospects list (name, employees, ARR, years, industry) | 🟦 | 2 | list + score detail; expand UI owed |
+| 5.3 | Prospects score rationale (expand) | 🟦 | 2 | explanation shown; rich detail owed |
+| 5.4 | Google Maps heat map w/ color pins + carousel | ⬜ | 6 | — |
+| 5.5 | Brave Search embedded bar | ⬜ | 6 | — |
+| 5.6 | Home metrics (YTD commissions, conversion) | ⬜ | 6 | — |
+| 5.7 | Appointments (week + 30-day + list) | ⬜ | 6 | — |
+| 5.8 | My Clients (+ CSV/Excel/Sheets/CRM import-export) | ⬜ | 6 | — |
+| 5.9 | Task Manager + to-dos | ⬜ | 6 | — |
+| 5.10 | Notebook + voice notes + attach | ⬜ | 6 | — |
+| 5.11 | Aria assistant (read/write, search, email/SMS, calendar) | ⬜ | 6 | — |
+| 5.12 | Reports (drill-down) | ⬜ | 6 | — |
+| 5.13 | Settings (outreach toggle, params, export, videos, WhatsApp, theme) | ⬜ | 6 | — |
+| 5.14 | Vault (branded templates + PDFs + uploads) | ⬜ | 6 | — |
+
+## 6. Deal Room + Pipeline (spec §7)
+
+| # | Requirement | Status | Phase | Gap / remaining |
+|---|---|---|---|---|
+| 6.1 | Deal Room realtime multi-party chat | ⬜ | 7 | Supabase Realtime |
+| 6.2 | Secure doc exchange + one-click attach | ⬜ | 7 | — |
+| 6.3 | E-signature (DocuSign/Adobe) | ⬜ | 7 | — |
+| 6.4 | Push notifications | ⬜ | 7 | — |
+| 6.5 | PipeDeal Kanban (6 stages) | ⬜ | 7 | DealStage enum exists; board owed |
+| 6.6 | Close → archive to Clients | ⬜ | 7 | — |
+
+## 7. Admin (spec §7)
+
+| # | Requirement | Status | Phase | Gap / remaining |
+|---|---|---|---|---|
+| 7.1 | Real-time module monitoring | ⬜ | 8 | — |
+| 7.2 | Error feed (`admin_notifications`) | 🟦 | 1 | table exists; feed UI owed |
+| 7.3 | Lead clawback / override UI | ⬜ | 8 | engine fn exists (3.5) |
+| 7.4 | Model + drift dashboards | ⬜ | 8 | — |
+| 7.5 | User management | ⬜ | 8 | — |
+| 7.6 | Audit trail (`audit_log`) | 🟦 | 1 | table exists; writes owed |
+
+## 8. Cross-cutting (spec §9, §10, §11)
+
+| # | Requirement | Status | Phase | Gap / remaining |
+|---|---|---|---|---|
+| 8.1 | RLS tenant isolation | ✅ | 1 | policies live; per-request GUC wiring in Phase 2 API |
+| 8.2 | Clerk auth (backend verify) | ✅ | 1 | frontend integration Phase 6 |
+| 8.3 | Encryption in transit/at rest | ⬜ | 9 | infra/provider config |
+| 8.4 | Data purge-on-exit | ⬜ | 9 | — |
+| 8.5 | Stripe billing | ⬜ | 9 | — |
+| 8.6 | REST API for all core objects | 🟦 | 2 | health, /me, prospects; rest grow per phase |
+| 8.7 | CSV/Excel/JSON export + CRM webhooks | ⬜ | 6 | — |
+| 8.8 | CI: lint/type/test + migration on PG | ✅ | 1 | — |
+| 8.9 | Deployment (Vercel/Supabase/Cloud Run/Inngest) | ⬜ | 9 | IaC + pipelines |

@@ -1,9 +1,14 @@
+"""Abstract ingestion pipeline contract (fetch → transform → load)."""
+
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
-from typing import Any, Iterable
+from collections.abc import Iterable
+from typing import Any
 
 
 class BasePipeline(ABC):
-    """Abstract base class for ingestion pipelines."""
+    """Base class every source connector implements."""
 
     @abstractmethod
     def fetch(self) -> Iterable[dict[str, Any]]:

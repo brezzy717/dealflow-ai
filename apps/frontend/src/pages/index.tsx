@@ -1,4 +1,5 @@
 import Head from 'next/head';
+import Link from 'next/link';
 import Layout from '../components/Layout';
 
 export default function Home() {
@@ -15,11 +16,14 @@ export default function Home() {
           </p>
         </header>
         <div className="rounded-xl border border-stone-200 bg-white p-6 shadow-sm">
-          <h2 className="text-xl font-medium">Next Steps</h2>
-          <ul className="mt-4 list-disc space-y-2 pl-6 text-stone-600">
-            <li>Connect to the backend API from `apps/backend`.</li>
-            <li>Wire React Query to the scoring and assignment endpoints.</li>
-            <li>Replace this placeholder card with live tier summaries and action widgets.</li>
+          <h2 className="text-xl font-medium">Get started</h2>
+          <ul className="mt-4 space-y-2 text-stone-600">
+            <li>
+              <Link href="/prospects" className="font-medium text-emerald-700 hover:underline">
+                View your Prospects →
+              </Link>{' '}
+              scored, off-market leads assigned to you.
+            </li>
           </ul>
         </div>
       </section>

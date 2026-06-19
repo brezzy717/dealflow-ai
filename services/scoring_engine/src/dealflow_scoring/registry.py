@@ -1,13 +1,14 @@
+"""Lightweight registry for assembling ensemble model components."""
+
+from __future__ import annotations
+
 from collections.abc import Callable
 from typing import Any
-
 
 ModelFactory = Callable[[], Any]
 
 
 class ModelRegistry:
-    """Lightweight registry for assembling ensemble model components."""
-
     def __init__(self) -> None:
         self._registry: dict[str, ModelFactory] = {}
 
