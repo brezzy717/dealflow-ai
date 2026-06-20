@@ -20,14 +20,14 @@ A 🟦 row means a working path exists but the requirement is not fully met. The
 |---|---|---|---|---|
 | 1.1 | Pluggable pipeline base (fetch/transform/load) | ✅ | 0 | — |
 | 1.2 | Synthetic/seed source for end-to-end dev | 🟦 | 2 | real connectors below replace it |
-| 1.3 | Dewey Data connector (ATTOM, Builty, PDL, SafeGraph, BrightQuery, WageScape…) | ⬜ | 4 | API client + dataset mappers |
-| 1.4 | Yelp connector | ⬜ | 4 | — |
-| 1.5 | NASDAQ connector | ⬜ | 4 | — |
-| 1.6 | SEC/EDGAR connector | ⬜ | 4 | — |
-| 1.7 | Data.gov connector | ⬜ | 4 | — |
-| 1.8 | Dedup (business name + address) | 🟦 | 2 | dedup_key only; fuzzy match owed |
-| 1.9 | Missing-data defaults + type validation | 🟦 | 2 | basic; full validation owed |
-| 1.10 | 2–3×/week scheduled ingest + event rescoring | ⬜ | 4 | scheduler (Inngest/cron) |
+| 1.3 | Dewey Data connector (ATTOM, Builty, PDL, SafeGraph, BrightQuery, WageScape…) | 🟦 | 4 | signal mapper built/tested; live API key + endpoint/field verification owed |
+| 1.4 | Yelp connector | 🟦 | 4 | mapper built/tested; live API wiring owed |
+| 1.5 | NASDAQ connector | 🟦 | 4 | mapper built/tested; live API wiring owed |
+| 1.6 | SEC/EDGAR connector | 🟦 | 4 | mapper built/tested; live API wiring owed |
+| 1.7 | Data.gov connector | 🟦 | 4 | mapper built/tested; live API wiring owed |
+| 1.8 | Dedup (business name + address) | ✅ | 4 | normalized name + address dedup_key |
+| 1.9 | Missing-data defaults + type validation | 🟦 | 2 | extraction defaults; full validation owed |
+| 1.10 | 2–3×/week scheduled ingest + event rescoring | 🟦 | 4 | cadence + refresh job + endpoint; external scheduler + event-driven rescore owed |
 
 ## 2. ML scoring engine (spec §3)
 
@@ -52,12 +52,12 @@ A 🟦 row means a working path exists but the requirement is not fully met. The
 | # | Requirement | Status | Phase | Gap / remaining |
 |---|---|---|---|---|
 | 3.1 | Parameter gating (years, employees, revenue, omit industries/locations) | 🟦 | 2 | core filters; full parity owed |
-| 3.2 | Round-robin slow-drip (30/wk, 10/10/10) | 🟦 | 2 | logic built; weekly scheduling owed (Phase 4) |
+| 3.2 | Round-robin slow-drip (30/wk, 10/10/10) | ✅ | 4 | `assign_weekly` over the scored pool |
 | 3.3 | Color-block fallback (short tier → next down) | ✅ | 2 | — |
 | 3.4 | Permanent single ownership (unique lead_id) | ✅ | 1 | — |
 | 3.5 | Clawback on broker departure pre-contact | 🟦 | 2 | function built; admin trigger Phase 8 |
-| 3.6 | Tue 06:00 scheduled assignment | ⬜ | 4 | scheduler |
-| 3.7 | Action-gating (no action → no next drop) | ⬜ | 4 | — |
+| 3.6 | Tue 06:00 scheduled assignment | 🟦 | 4 | cadence + assign job + endpoint; external cron trigger owed |
+| 3.7 | Action-gating (no action → no next drop) | ✅ | 4 | enforced in `assign_weekly` |
 
 ## 4. Outreach automation (spec §6)
 

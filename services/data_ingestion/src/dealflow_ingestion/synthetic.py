@@ -14,6 +14,7 @@ from collections.abc import Iterable
 from typing import Any
 
 from .base import BasePipeline
+from .dedup import dedup_key
 
 _STATES = ("AZ", "UT", "TX")
 _INDUSTRIES = (
@@ -33,10 +34,6 @@ _CITIES = {
 }
 _NAME_PREFIXES = ("Sunrise", "Summit", "Legacy", "Frontier", "Cactus", "Lone Star")
 _NAME_SUFFIXES = ("Holdings", "& Sons", "Group", "Co", "Enterprises", "LLC")
-
-
-def _normalize_key(*parts: str) -> str:
-    return "|".join(p.strip().lower() for p in parts if p)
 
 
 def generate_leads(
@@ -93,7 +90,7 @@ def generate_leads(
             "owner_email": f"owner{i}@example.com",
             "owner_phone": f"555-01{i:02d}",
             "owner_age": owner_age,
-            "dedup_key": _normalize_key(name, address, state),
+            "dedup_key": dedup_key(name, address, state),
             "signals": signals,
         }
         leads.append(lead)

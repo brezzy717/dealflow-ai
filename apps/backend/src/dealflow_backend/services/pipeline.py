@@ -50,15 +50,13 @@ def _broker_params(bp: models.BrokerParameters | None) -> BrokerParams:
     )
 
 
-async def run_demo_pipeline(
+async def ingest_and_score(
     session: AsyncSession,
     *,
-    tenant_id: uuid.UUID,
-    user_id: uuid.UUID,
     lead_count: int = 40,
     seed: int = 13,
-) -> dict[str, int]:
-    """Ingest synthetic leads, score them, and assign one drop to ``user_id``."""
+) -> tuple[list[Candidate], int]:
+    """Ingest + score synthetic leads into the pool. Returns (candidates, created)."""
     from dealflow_ingestion import generate_leads
     from dealflow_scoring import score_lead
 
@@ -127,7 +125,10 @@ async def run_demo_pipeline(
         )
 
     await session.flush()
+    return candidates, leads_created
 
+
+async def _params_for(session: AsyncSession, user_id: uuid.UUID) -> BrokerParams:
     bp = (
         await session.execute(
             select(models.BrokerParameters).where(
@@ -135,16 +136,29 @@ async def run_demo_pipeline(
             )
         )
     ).scalar_one_or_none()
-    params = _broker_params(bp)
+    return _broker_params(bp)
 
-    already_assigned = set(
-        (
-            await session.execute(select(models.LeadAssignment.lead_id))
-        ).scalars().all()
+
+async def _assigned_lead_ids(session: AsyncSession) -> set[uuid.UUID]:
+    return set(
+        (await session.execute(select(models.LeadAssignment.lead_id))).scalars().all()
     )
-    selectable = [c for c in candidates if uuid.UUID(c.lead_id) not in already_assigned]
-    chosen = select_for_broker(selectable, params)
 
+
+async def assign_to_user(
+    session: AsyncSession,
+    *,
+    tenant_id: uuid.UUID,
+    user_id: uuid.UUID,
+    candidates: list[Candidate],
+    now: datetime.datetime | None = None,
+) -> int:
+    """Select and persist one drop for a user, respecting permanent ownership."""
+    now = now or datetime.datetime.now(tz=datetime.timezone.utc)
+    params = await _params_for(session, user_id)
+    already = await _assigned_lead_ids(session)
+    selectable = [c for c in candidates if uuid.UUID(c.lead_id) not in already]
+    chosen = select_for_broker(selectable, params)
     for candidate in chosen:
         session.add(
             models.LeadAssignment(
@@ -155,10 +169,28 @@ async def run_demo_pipeline(
                 assigned_at=now,
             )
         )
+    return len(chosen)
 
+
+async def run_demo_pipeline(
+    session: AsyncSession,
+    *,
+    tenant_id: uuid.UUID,
+    user_id: uuid.UUID,
+    lead_count: int = 40,
+    seed: int = 13,
+) -> dict[str, int]:
+    """Ingest + score, then assign one drop to ``user_id`` (used in tests/demos)."""
+    now = datetime.datetime.now(tz=datetime.timezone.utc)
+    candidates, leads_created = await ingest_and_score(
+        session, lead_count=lead_count, seed=seed
+    )
+    assigned = await assign_to_user(
+        session, tenant_id=tenant_id, user_id=user_id, candidates=candidates, now=now
+    )
     await session.commit()
     return {
         "leads_created": leads_created,
         "scored": len(candidates),
-        "assigned": len(chosen),
+        "assigned": assigned,
     }

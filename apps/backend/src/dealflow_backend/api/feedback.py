@@ -164,3 +164,20 @@ async def trigger_retrain(
     return await retrain_from_feedback(
         session, artifacts_dir=get_settings().model_artifacts_dir
     )
+
+
+@router.post("/admin/jobs/{job_name}")
+async def trigger_job(
+    job_name: str,
+    _: AuthenticatedUser = Depends(require_admin),
+    session: AsyncSession = Depends(get_async_session),
+) -> dict:
+    """Trigger a scheduled job (refresh / assign / retrain) — called by cron."""
+    from ..services.scheduling import JOBS, run_job
+
+    if job_name not in JOBS:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Unknown job '{job_name}'. Valid: {sorted(JOBS)}",
+        )
+    return await run_job(job_name, session)
