@@ -105,6 +105,28 @@ class EnsembleModel:
         self._fitted = True
         return self
 
+    def set_weights(self, weights: Mapping[str, float]) -> None:
+        self.weights = dict(weights)
+
+    def predict_models(self, X: Sequence[Sequence[float]]) -> dict[str, np.ndarray]:
+        """Per-model predictions (clamped to 0–100) for a feature matrix."""
+        if not self._fitted:
+            raise RuntimeError("EnsembleModel must be fit before prediction.")
+        X_arr = np.asarray(X, dtype=float)
+        return {
+            "xgboost_v1": np.clip(self._xgb.predict(X_arr), 0.0, 100.0),
+            "random_forest_v1": np.clip(self._rf.predict(X_arr), 0.0, 100.0),
+            "neural_net_v1": np.clip(
+                self._mlp.predict(self._scaler.transform(X_arr)), 0.0, 100.0
+            ),
+        }
+
+    def disagreement(self, X: Sequence[Sequence[float]]) -> float:
+        """Mean cross-model standard deviation over a matrix (a drift signal)."""
+        preds = self.predict_models(X)
+        stacked = np.vstack(list(preds.values()))
+        return float(stacked.std(axis=0).mean())
+
     def _model_importances(self) -> np.ndarray:
         xgb_imp = np.asarray(self._xgb.feature_importances_, dtype=float)
         rf_imp = np.asarray(self._rf.feature_importances_, dtype=float)

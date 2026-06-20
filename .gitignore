@@ -13,6 +13,10 @@ venv/
 .coverage
 htmlcov/
 
+# ML model artifacts
+artifacts/
+*.joblib
+
 # Node / Next.js
 node_modules/
 .next/

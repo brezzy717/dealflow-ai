@@ -29,6 +29,7 @@ class Settings(BaseSettings):
         alias="CORS_ALLOW_ORIGINS",
     )
     sqlalchemy_echo: bool = Field(default=False, alias="SQLALCHEMY_ECHO")
+    model_artifacts_dir: str = Field(default="artifacts", alias="MODEL_ARTIFACTS_DIR")
 
     # Clerk auth (JWT verification). JWKS URL + issuer are required to enforce
     # auth; audience is optional. See dealflow_backend/auth/clerk.py.

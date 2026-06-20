@@ -41,10 +41,10 @@ A 🟦 row means a working path exists but the requirement is not fully met. The
 | 2.6 | Feature attribution (top 5 ±) | 🟦 | 2 | importance×value heuristic; SHAP owed |
 | 2.7 | Plain-English explanation | 🟦 | 2 | template-based; richer NL owed |
 | 2.8 | Persist `ensemble_predictions` (timestamped, append-only) | 🟦 | 2 | written by orchestrator |
-| 2.9 | Model versioning (`model_versions`) | ⬜ | 3 | registry + artifact storage |
-| 2.10 | Adaptive ensemble weights (`ensemble_weights`) | ⬜ | 3 | — |
-| 2.11 | Drift detection | ⬜ | 3 | — |
-| 2.12 | Two-stage feedback retraining (booked → closed) | ⬜ | 3 | — |
+| 2.9 | Model versioning (`model_versions`) | 🟦 | 3 | rows + joblib artifacts; object-storage URIs owed |
+| 2.10 | Adaptive ensemble weights (`ensemble_weights`) | ✅ | 3 | inverse-error weighting on retrain |
+| 2.11 | Drift detection | 🟦 | 3 | perf-drift + model disagreement; population drift owed |
+| 2.12 | Two-stage feedback retraining (booked → closed) | 🟦 | 3 | capture + retrain built; scheduling owed (Phase 4) |
 | 2.13 | Deterministic 100-point rules grid (explainability baseline) | ⬜ | 3 | — |
 
 ## 3. Assignment engine (spec §5)
@@ -67,7 +67,7 @@ A 🟦 row means a working path exists but the requirement is not fully met. The
 | 4.2 | Cal.com self-hosted booking | ⬜ | 5 | — |
 | 4.3 | Hume AI calling concierge + Twilio (Re-tell fallback) | ⬜ | 5 | — |
 | 4.4 | Call recording + transcription | ⬜ | 5 | — |
-| 4.5 | Outcome state machine (booked/dnc/interested/no_contact + callbacks) | ⬜ | 5 | model enum exists; flow owed |
+| 4.5 | Outcome state machine (booked/dnc/interested/no_contact + callbacks) | 🟦 | 5 | call/deal-outcome endpoints feed the loop; full cadence + callbacks owed |
 | 4.6 | Opt-in toggle (concierge vs manual) | 🟦 | 1 | `warm_outreach_opt_in` field; flow owed |
 
 ## 5. Dashboard — broker (spec §7)
@@ -105,7 +105,7 @@ A 🟦 row means a working path exists but the requirement is not fully met. The
 | # | Requirement | Status | Phase | Gap / remaining |
 |---|---|---|---|---|
 | 7.1 | Real-time module monitoring | ⬜ | 8 | — |
-| 7.2 | Error feed (`admin_notifications`) | 🟦 | 1 | table exists; feed UI owed |
+| 7.2 | Error feed (`admin_notifications`) | 🟦 | 1 | drift alerts now written by retrainer; feed UI owed |
 | 7.3 | Lead clawback / override UI | ⬜ | 8 | engine fn exists (3.5) |
 | 7.4 | Model + drift dashboards | ⬜ | 8 | — |
 | 7.5 | User management | ⬜ | 8 | — |
@@ -120,7 +120,7 @@ A 🟦 row means a working path exists but the requirement is not fully met. The
 | 8.3 | Encryption in transit/at rest | ⬜ | 9 | infra/provider config |
 | 8.4 | Data purge-on-exit | ⬜ | 9 | — |
 | 8.5 | Stripe billing | ⬜ | 9 | — |
-| 8.6 | REST API for all core objects | 🟦 | 2 | health, /me, prospects; rest grow per phase |
+| 8.6 | REST API for all core objects | 🟦 | 2 | health, /me, prospects, feedback, admin/retrain; rest grow per phase |
 | 8.7 | CSV/Excel/JSON export + CRM webhooks | ⬜ | 6 | — |
 | 8.8 | CI: lint/type/test + migration on PG | ✅ | 1 | — |
 | 8.9 | Deployment (Vercel/Supabase/Cloud Run/Inngest) | ⬜ | 9 | IaC + pipelines |

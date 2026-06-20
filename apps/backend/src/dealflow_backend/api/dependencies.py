@@ -78,3 +78,17 @@ async def get_current_user(
         )
     tenant_id = claims.get("tenant_id") or claims.get("org_id")
     return AuthenticatedUser(user_id=user_id, tenant_id=tenant_id, claims=claims)
+
+
+async def require_admin(
+    user: AuthenticatedUser = Depends(get_current_user),
+) -> AuthenticatedUser:
+    """Restrict a route to admin callers (Clerk ``role`` / ``org_role`` claim)."""
+    claims = user.claims or {}
+    role = claims.get("role") or claims.get("org_role")
+    if role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin role required.",
+        )
+    return user
