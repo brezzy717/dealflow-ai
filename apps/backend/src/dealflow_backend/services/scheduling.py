@@ -94,15 +94,19 @@ async def assign_weekly(
     *,
     now: datetime.datetime | None = None,
     grace_days: int = GRACE_DAYS,
+    user_ids: set | None = None,
 ) -> dict:
-    """Action-gated weekly drop to every eligible active broker."""
+    """Action-gated weekly drop to eligible active brokers.
+
+    ``user_ids`` optionally restricts the run to specific brokers (the scheduled
+    job runs all of them; targeting a subset is useful for re-runs and tests).
+    """
     now = now or datetime.datetime.now(tz=datetime.timezone.utc)
     candidates = await _pool_candidates(session)
-    users = (
-        await session.execute(
-            select(models.User).where(models.User.is_active.is_(True))
-        )
-    ).scalars().all()
+    user_query = select(models.User).where(models.User.is_active.is_(True))
+    if user_ids is not None:
+        user_query = user_query.where(models.User.id.in_(user_ids))
+    users = (await session.execute(user_query)).scalars().all()
 
     results: dict[str, dict] = {}
     for user in users:

@@ -48,8 +48,12 @@ def test_weekly_assignment_is_action_gated() -> None:
             assert refresh["scored"] == 40
 
         # First weekly drop: broker is eligible (no outstanding) -> gets leads.
+        # Scope to this broker so other tests' brokers in the shared DB don't
+        # consume the pool first.
         async with sm() as session:
-            first = await scheduling.assign_weekly(session, now=now)
+            first = await scheduling.assign_weekly(
+                session, now=now, user_ids={user_id}
+            )
             assert first[str(user_id)]["assigned"] > 0
 
         # Backdate one prospect past the grace window with no outcome.
@@ -66,7 +70,9 @@ def test_weekly_assignment_is_action_gated() -> None:
 
         # Second drop: broker now ineligible -> skipped.
         async with sm() as session:
-            second = await scheduling.assign_weekly(session, now=now)
+            second = await scheduling.assign_weekly(
+                session, now=now, user_ids={user_id}
+            )
             assert second[str(user_id)]["assigned"] == 0
             assert second[str(user_id)]["skipped_outstanding"] >= 1
 
