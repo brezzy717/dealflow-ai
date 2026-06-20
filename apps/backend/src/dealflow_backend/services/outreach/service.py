@@ -49,6 +49,7 @@ async def start_outreach_for_new_assignments(
     now: datetime.datetime | None = None,
     email_provider: EmailProvider | None = None,
     booking_provider: BookingProvider | None = None,
+    tenant_id=None,
 ) -> dict:
     """Send Day-0 emails and queue Day-7 calls for assignments with no outreach."""
     now = now or datetime.datetime.now(tz=datetime.timezone.utc)
@@ -56,14 +57,15 @@ async def start_outreach_for_new_assignments(
     booking_provider = booking_provider or get_booking_provider()
 
     already = select(models.LeadEmailOutreach.assignment_id)
-    rows = (
-        await session.execute(
-            select(models.LeadAssignment, models.RawLead, models.User)
-            .join(models.RawLead, models.RawLead.id == models.LeadAssignment.lead_id)
-            .join(models.User, models.User.id == models.LeadAssignment.user_id)
-            .where(models.LeadAssignment.id.notin_(already))
-        )
-    ).all()
+    query = (
+        select(models.LeadAssignment, models.RawLead, models.User)
+        .join(models.RawLead, models.RawLead.id == models.LeadAssignment.lead_id)
+        .join(models.User, models.User.id == models.LeadAssignment.user_id)
+        .where(models.LeadAssignment.id.notin_(already))
+    )
+    if tenant_id is not None:
+        query = query.where(models.LeadAssignment.tenant_id == tenant_id)
+    rows = (await session.execute(query)).all()
 
     emails_sent = 0
     calls_queued = 0
@@ -128,26 +130,28 @@ async def run_concierge(
     *,
     now: datetime.datetime | None = None,
     voice_provider: VoiceProvider | None = None,
+    tenant_id=None,
 ) -> dict:
     """Work the due call queue for opted-in brokers; record outcomes + callbacks."""
     now = now or datetime.datetime.now(tz=datetime.timezone.utc)
     voice_provider = voice_provider or get_voice_provider()
 
-    due = (
-        await session.execute(
-            select(models.AiCallQueue, models.LeadAssignment, models.RawLead, models.User)
-            .join(
-                models.LeadAssignment,
-                models.LeadAssignment.id == models.AiCallQueue.assignment_id,
-            )
-            .join(models.RawLead, models.RawLead.id == models.LeadAssignment.lead_id)
-            .join(models.User, models.User.id == models.LeadAssignment.user_id)
-            .where(
-                models.AiCallQueue.status == "scheduled",
-                models.AiCallQueue.window_start <= now,
-            )
+    query = (
+        select(models.AiCallQueue, models.LeadAssignment, models.RawLead, models.User)
+        .join(
+            models.LeadAssignment,
+            models.LeadAssignment.id == models.AiCallQueue.assignment_id,
         )
-    ).all()
+        .join(models.RawLead, models.RawLead.id == models.LeadAssignment.lead_id)
+        .join(models.User, models.User.id == models.LeadAssignment.user_id)
+        .where(
+            models.AiCallQueue.status == "scheduled",
+            models.AiCallQueue.window_start <= now,
+        )
+    )
+    if tenant_id is not None:
+        query = query.where(models.AiCallQueue.tenant_id == tenant_id)
+    due = (await session.execute(query)).all()
 
     placed = 0
     skipped = 0

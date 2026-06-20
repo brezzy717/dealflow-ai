@@ -22,6 +22,7 @@ from .pipeline import assign_to_user, ingest_and_score
 CADENCE: dict[str, str] = {
     "refresh": "0 10 * * 1,3,5",  # Mon/Wed/Fri 10:00 — ingest + rescore
     "assign": "0 6 * * 2",        # Tue 06:00 — weekly lead drop
+    "outreach": "0 12 * * 2,5",   # Tue/Fri 12:00 — Day-0 emails + concierge calls
     "retrain": "0 3 * * 1",       # Mon 03:00 — feedback retrain
 }
 
@@ -141,6 +142,14 @@ async def _job_assign(session: AsyncSession) -> dict:
     return {"job": "assign", "brokers": await assign_weekly(session)}
 
 
+async def _job_outreach(session: AsyncSession) -> dict:
+    from .outreach.service import run_concierge, start_outreach_for_new_assignments
+
+    emails = await start_outreach_for_new_assignments(session)
+    calls = await run_concierge(session)
+    return {"job": "outreach", **emails, **calls}
+
+
 async def _job_retrain(session: AsyncSession) -> dict:
     from ..config import get_settings
     from .retraining import retrain_from_feedback
@@ -154,6 +163,7 @@ async def _job_retrain(session: AsyncSession) -> dict:
 JOBS = {
     "refresh": _job_refresh,
     "assign": _job_assign,
+    "outreach": _job_outreach,
     "retrain": _job_retrain,
 }
 

@@ -63,12 +63,12 @@ A 🟦 row means a working path exists but the requirement is not fully met. The
 
 | # | Requirement | Status | Phase | Gap / remaining |
 |---|---|---|---|---|
-| 4.1 | Day-0 email + value PDFs + booking link | ⬜ | 5 | email provider + templates |
-| 4.2 | Cal.com self-hosted booking | ⬜ | 5 | — |
-| 4.3 | Hume AI calling concierge + Twilio (Re-tell fallback) | ⬜ | 5 | — |
-| 4.4 | Call recording + transcription | ⬜ | 5 | — |
-| 4.5 | Outcome state machine (booked/dnc/interested/no_contact + callbacks) | 🟦 | 5 | call/deal-outcome endpoints feed the loop; full cadence + callbacks owed |
-| 4.6 | Opt-in toggle (concierge vs manual) | 🟦 | 1 | `warm_outreach_opt_in` field; flow owed |
+| 4.1 | Day-0 email + value PDFs + booking link | 🟦 | 5 | orchestration + EmailProvider; live email API (Resend/SendGrid) + real PDFs owed |
+| 4.2 | Cal.com self-hosted booking | 🟦 | 5 | BookingProvider builds links; self-hosted Cal.com instance + sync owed |
+| 4.3 | Hume AI calling concierge + Twilio (Re-tell fallback) | 🟦 | 5 | concierge loop + VoiceProvider; live Hume/Twilio adapters owed |
+| 4.4 | Call recording + transcription | 🟦 | 5 | CallResult carries recording/transcript URIs; live capture owed |
+| 4.5 | Outcome state machine (booked/dnc/interested/no_contact + callbacks) | ✅ | 5 | full cadence: Day7→Day10→60d, DNC deactivate, interested callbacks |
+| 4.6 | Opt-in toggle (concierge vs manual) | ✅ | 5 | concierge skips opted-out brokers (manual logging) |
 
 ## 5. Dashboard — broker (spec §7)
 

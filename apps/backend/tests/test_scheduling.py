@@ -10,8 +10,8 @@ from dealflow_backend.services.scheduling import (
 
 
 def test_cadence_and_jobs_cover_the_spec() -> None:
-    assert set(CADENCE) == {"refresh", "assign", "retrain"}
-    assert set(JOBS) == {"refresh", "assign", "retrain"}
+    assert set(CADENCE) == {"refresh", "assign", "outreach", "retrain"}
+    assert set(JOBS) == {"refresh", "assign", "outreach", "retrain"}
     # Assignment runs Tuesday 06:00 per spec; ingest Mon/Wed/Fri.
     assert CADENCE["assign"] == "0 6 * * 2"
     assert CADENCE["refresh"] == "0 10 * * 1,3,5"

@@ -9,6 +9,7 @@ endpoint. The in-process job logic lives in
 |-----|------------|----------|---------|
 | `refresh` | `0 10 * * 1,3,5` | `POST /api/admin/jobs/refresh` | Mon/Wed/Fri 10:00 — ingest + rescore from sources |
 | `assign` | `0 6 * * 2` | `POST /api/admin/jobs/assign` | Tue 06:00 — action-gated weekly lead drop (10/10/10) |
+| `outreach` | `0 12 * * 2,5` | `POST /api/admin/jobs/outreach` | Tue/Fri 12:00 — Day-0 emails + AI concierge calls |
 | `retrain` | `0 3 * * 1` | `POST /api/admin/jobs/retrain` | Mon 03:00 — feedback-driven retrain |
 
 The endpoint requires the `admin` role claim. The scheduler must present an admin
