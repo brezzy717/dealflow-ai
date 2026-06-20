@@ -56,11 +56,17 @@ def test_weekly_assignment_is_action_gated() -> None:
             )
             assert first[str(user_id)]["assigned"] > 0
 
-        # Backdate one prospect past the grace window with no outcome.
+        # Backdate one of THIS broker's prospects past the grace window with no
+        # outcome (filter by user_id — the shared CI DB holds other tests' rows).
         async with sm() as session:
             assignment = (
-                await session.execute(select(models.LeadAssignment).limit(1))
-            ).scalar_one()
+                await session.execute(
+                    select(models.LeadAssignment)
+                    .where(models.LeadAssignment.user_id == user_id)
+                    .limit(1)
+                )
+            ).scalars().first()
+            assert assignment is not None
             assignment.assigned_at = now - datetime.timedelta(days=10)
             await session.commit()
             outstanding = await scheduling.count_outstanding_prospects(
