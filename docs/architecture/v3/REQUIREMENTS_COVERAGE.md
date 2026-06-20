@@ -74,20 +74,20 @@ A 🟦 row means a working path exists but the requirement is not fully met. The
 
 | # | Requirement | Status | Phase | Gap / remaining |
 |---|---|---|---|---|
-| 5.1 | Auth + app shell / nav | ⬜ | 6 | Clerk frontend + layout |
-| 5.2 | Prospects list (name, employees, ARR, years, industry) | 🟦 | 2 | list + score detail; expand UI owed |
-| 5.3 | Prospects score rationale (expand) | 🟦 | 2 | explanation shown; rich detail owed |
-| 5.4 | Google Maps heat map w/ color pins + carousel | ⬜ | 6 | — |
-| 5.5 | Brave Search embedded bar | ⬜ | 6 | — |
-| 5.6 | Home metrics (YTD commissions, conversion) | ⬜ | 6 | — |
-| 5.7 | Appointments (week + 30-day + list) | ⬜ | 6 | — |
-| 5.8 | My Clients (+ CSV/Excel/Sheets/CRM import-export) | ⬜ | 6 | — |
-| 5.9 | Task Manager + to-dos | ⬜ | 6 | — |
-| 5.10 | Notebook + voice notes + attach | ⬜ | 6 | — |
-| 5.11 | Aria assistant (read/write, search, email/SMS, calendar) | ⬜ | 6 | — |
-| 5.12 | Reports (drill-down) | ⬜ | 6 | — |
-| 5.13 | Settings (outreach toggle, params, export, videos, WhatsApp, theme) | ⬜ | 6 | — |
-| 5.14 | Vault (branded templates + PDFs + uploads) | ⬜ | 6 | — |
+| 5.1 | Auth + app shell / nav | 🟦 | 6 | sidebar nav shell built; Clerk frontend auth integration owed |
+| 5.2 | Prospects list (name, employees, ARR, years, industry) | ✅ | 2 | list + expandable score detail |
+| 5.3 | Prospects score rationale (expand) | ✅ | 2 | explanation + top ± drivers |
+| 5.4 | Google Maps heat map w/ color pins + carousel | ⬜ | 6 | needs Google Maps API key |
+| 5.5 | Brave Search embedded bar | ⬜ | 6 | needs Brave Search API key |
+| 5.6 | Home metrics (YTD commissions, conversion) | 🟦 | 6 | metrics API + cards; commission capture owed |
+| 5.7 | Appointments (week + 30-day + list) | 🟦 | 6 | list view + API; calendar grid views owed |
+| 5.8 | My Clients (+ CSV/Excel/Sheets/CRM import-export) | 🟦 | 6 | list + CSV/JSON export; bulk import + Excel + CRM webhooks owed |
+| 5.9 | Task Manager + to-dos | ✅ | 6 | list + create API/UI |
+| 5.10 | Notebook + voice notes + attach | ⬜ | 6 | `notes` table exists; audio capture/UI owed |
+| 5.11 | Aria assistant (read/write, search, email/SMS, calendar) | 🟦 | 6 | floating widget placeholder; assistant wiring owed |
+| 5.12 | Reports (drill-down) | 🟦 | 6 | tier/industry/outcome summary API + UI; deeper drill-down owed |
+| 5.13 | Settings (outreach toggle, params, export, videos, WhatsApp, theme) | 🟦 | 6 | placeholder page; controls owed |
+| 5.14 | Vault (branded templates + PDFs + uploads) | ⬜ | 6 | placeholder; needs document service |
 
 ## 6. Deal Room + Pipeline (spec §7)
 
@@ -121,6 +121,6 @@ A 🟦 row means a working path exists but the requirement is not fully met. The
 | 8.4 | Data purge-on-exit | ⬜ | 9 | — |
 | 8.5 | Stripe billing | ⬜ | 9 | — |
 | 8.6 | REST API for all core objects | 🟦 | 2 | health, /me, prospects, feedback, admin/retrain; rest grow per phase |
-| 8.7 | CSV/Excel/JSON export + CRM webhooks | ⬜ | 6 | — |
+| 8.7 | CSV/Excel/JSON export + CRM webhooks | 🟦 | 6 | CSV + JSON export endpoint; Excel + bulk import + CRM webhooks owed |
 | 8.8 | CI: lint/type/test + migration on PG | ✅ | 1 | — |
 | 8.9 | Deployment (Vercel/Supabase/Cloud Run/Inngest) | ⬜ | 9 | IaC + pipelines |
