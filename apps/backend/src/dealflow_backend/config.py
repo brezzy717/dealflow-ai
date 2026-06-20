@@ -37,6 +37,11 @@ class Settings(BaseSettings):
     clerk_issuer: str | None = Field(default=None, alias="CLERK_ISSUER")
     clerk_audience: str | None = Field(default=None, alias="CLERK_AUDIENCE")
 
+    # Billing webhook shared secret (stand-in for Stripe signature verification).
+    billing_webhook_secret: str | None = Field(
+        default=None, alias="BILLING_WEBHOOK_SECRET"
+    )
+
     @property
     def auth_configured(self) -> bool:
         return bool(self.clerk_jwks_url and self.clerk_issuer)

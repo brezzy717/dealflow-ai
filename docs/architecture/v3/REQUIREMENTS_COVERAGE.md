@@ -86,7 +86,7 @@ A 🟦 row means a working path exists but the requirement is not fully met. The
 | 5.10 | Notebook + voice notes + attach | ⬜ | 6 | `notes` table exists; audio capture/UI owed |
 | 5.11 | Aria assistant (read/write, search, email/SMS, calendar) | 🟦 | 6 | floating widget placeholder; assistant wiring owed |
 | 5.12 | Reports (drill-down) | 🟦 | 6 | tier/industry/outcome summary API + UI; deeper drill-down owed |
-| 5.13 | Settings (outreach toggle, params, export, videos, WhatsApp, theme) | 🟦 | 6 | placeholder page; controls owed |
+| 5.13 | Settings (outreach toggle, params, export, videos, WhatsApp, theme) | 🟦 | 9 | outreach toggle + params + onboarding + account-close live; embedded videos + WhatsApp + theme owed |
 | 5.14 | Vault (branded templates + PDFs + uploads) | ⬜ | 6 | placeholder; needs document service |
 
 ## 6. Deal Room + Pipeline (spec §7)
@@ -117,10 +117,10 @@ A 🟦 row means a working path exists but the requirement is not fully met. The
 |---|---|---|---|---|
 | 8.1 | RLS tenant isolation | ✅ | 1 | policies live; per-request GUC wiring in Phase 2 API |
 | 8.2 | Clerk auth (backend verify) | ✅ | 1 | frontend integration Phase 6 |
-| 8.3 | Encryption in transit/at rest | ⬜ | 9 | infra/provider config |
-| 8.4 | Data purge-on-exit | ⬜ | 9 | — |
-| 8.5 | Stripe billing | ⬜ | 9 | — |
+| 8.3 | Encryption in transit/at rest | 🟦 | 9 | documented (managed platforms provide TLS + at-rest); deploy config owed |
+| 8.4 | Data purge-on-exit | ✅ | 9 | account close purges tenant PII, retains anonymized training samples |
+| 8.5 | Stripe billing | 🟦 | 9 | subscription status + webhook + state on tenant; live Stripe adapter + checkout owed |
 | 8.6 | REST API for all core objects | 🟦 | 2 | health, /me, prospects, feedback, admin/retrain; rest grow per phase |
 | 8.7 | CSV/Excel/JSON export + CRM webhooks | 🟦 | 6 | CSV + JSON export endpoint; Excel + bulk import + CRM webhooks owed |
 | 8.8 | CI: lint/type/test + migration on PG | ✅ | 1 | — |
-| 8.9 | Deployment (Vercel/Supabase/Cloud Run/Inngest) | ⬜ | 9 | IaC + pipelines |
+| 8.9 | Deployment (Vercel/Supabase/Cloud Run/Inngest) | 🟦 | 9 | Dockerfiles + cron config + DEPLOYMENT.md guide; live provisioning + IaC owed |

@@ -396,6 +396,20 @@ class AdminNotification(TimestampMixin, Base):
     acknowledged: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
 
+class RetainedTrainingSample(TimestampMixin, Base):
+    """Anonymized ML training sample retained after a tenant is purged.
+
+    Holds only the feature vector + observed quality (no PII), so the model keeps
+    learning from a departed broker's outcomes without retaining their data.
+    """
+
+    __tablename__ = "retained_training_samples"
+
+    feature_vector: Mapped[list] = mapped_column(JSON, nullable=False)
+    actual_quality_score: Mapped[float] = mapped_column(Numeric(6, 3), nullable=False)
+    source_tenant_hash: Mapped[str | None] = mapped_column(String(64))
+
+
 class AuditLog(TimestampMixin, Base):
     __tablename__ = "audit_log"
 
