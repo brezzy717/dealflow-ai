@@ -93,12 +93,12 @@ A 🟦 row means a working path exists but the requirement is not fully met. The
 
 | # | Requirement | Status | Phase | Gap / remaining |
 |---|---|---|---|---|
-| 6.1 | Deal Room realtime multi-party chat | ⬜ | 7 | Supabase Realtime |
-| 6.2 | Secure doc exchange + one-click attach | ⬜ | 7 | — |
-| 6.3 | E-signature (DocuSign/Adobe) | ⬜ | 7 | — |
-| 6.4 | Push notifications | ⬜ | 7 | — |
-| 6.5 | PipeDeal Kanban (6 stages) | ⬜ | 7 | DealStage enum exists; board owed |
-| 6.6 | Close → archive to Clients | ⬜ | 7 | — |
+| 6.1 | Deal Room realtime multi-party chat | 🟦 | 7 | durable messages + API + UI (polled); Supabase Realtime push owed |
+| 6.2 | Secure doc exchange + one-click attach | 🟦 | 7 | attach-to-client endpoint; secure storage + exchange owed |
+| 6.3 | E-signature (DocuSign/Adobe) | ⬜ | 7 | needs DocuSign/Adobe Sign integration |
+| 6.4 | Push notifications | ⬜ | 7 | needs realtime/push channel |
+| 6.5 | PipeDeal Kanban (6 stages) | ✅ | 7 | board + stage-transition API/UI |
+| 6.6 | Close → archive to Clients | ✅ | 7 | close archives to past-client |
 
 ## 7. Admin (spec §7)
 

@@ -5,6 +5,7 @@ from starlette.requests import Request
 from starlette.responses import Response
 
 from .api.dashboard import router as dashboard_router
+from .api.dealroom import router as dealroom_router
 from .api.feedback import router as feedback_router
 from .api.prospects import router as prospects_router
 from .api.routes import api_router, router
@@ -56,6 +57,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(prospects_router)
     app.include_router(feedback_router)
     app.include_router(dashboard_router)
+    app.include_router(dealroom_router)
 
     return app
 
