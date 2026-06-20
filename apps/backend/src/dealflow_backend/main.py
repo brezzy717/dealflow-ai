@@ -4,6 +4,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
 
+from .api.admin import router as admin_router
 from .api.dashboard import router as dashboard_router
 from .api.dealroom import router as dealroom_router
 from .api.feedback import router as feedback_router
@@ -58,6 +59,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(feedback_router)
     app.include_router(dashboard_router)
     app.include_router(dealroom_router)
+    app.include_router(admin_router)
 
     return app
 

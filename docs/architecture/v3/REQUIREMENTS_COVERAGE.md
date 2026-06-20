@@ -104,12 +104,12 @@ A 🟦 row means a working path exists but the requirement is not fully met. The
 
 | # | Requirement | Status | Phase | Gap / remaining |
 |---|---|---|---|---|
-| 7.1 | Real-time module monitoring | ⬜ | 8 | — |
-| 7.2 | Error feed (`admin_notifications`) | 🟦 | 1 | drift alerts now written by retrainer; feed UI owed |
-| 7.3 | Lead clawback / override UI | ⬜ | 8 | engine fn exists (3.5) |
-| 7.4 | Model + drift dashboards | ⬜ | 8 | — |
-| 7.5 | User management | ⬜ | 8 | — |
-| 7.6 | Audit trail (`audit_log`) | 🟦 | 1 | table exists; writes owed |
+| 7.1 | Real-time module monitoring | 🟦 | 8 | health/counts API + admin UI; live realtime feed owed |
+| 7.2 | Error feed (`admin_notifications`) | ✅ | 8 | drift alerts written + admin feed API/UI |
+| 7.3 | Lead clawback / override UI | ✅ | 8 | admin clawback endpoint re-pools lead + audit |
+| 7.4 | Model + drift dashboards | 🟦 | 8 | model registry + metrics API/UI; richer charts owed |
+| 7.5 | User management | 🟦 | 8 | admin user list; edit/deactivate actions owed |
+| 7.6 | Audit trail (`audit_log`) | 🟦 | 8 | clawback writes + audit API; broaden write coverage owed |
 
 ## 8. Cross-cutting (spec §9, §10, §11)
 
