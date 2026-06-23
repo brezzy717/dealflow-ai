@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import uuid
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from typing import Optional
 
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
@@ -12,6 +14,21 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from ..config import Settings, get_settings
+
+# Postgres session variable read by the Row-Level Security policies.
+TENANT_GUC = "app.current_tenant"
+
+
+async def set_current_tenant(session: AsyncSession, tenant_id: uuid.UUID | str) -> None:
+    """Bind the active tenant for the current transaction so RLS can enforce it.
+
+    Uses ``set_config(..., is_local => true)`` so the setting is scoped to the
+    transaction and cannot leak across pooled connections.
+    """
+    await session.execute(
+        text("SELECT set_config(:key, :value, true)"),
+        {"key": TENANT_GUC, "value": str(tenant_id)},
+    )
 
 _engine: Optional[AsyncEngine] = None
 _session_factory: Optional[async_sessionmaker[AsyncSession]] = None

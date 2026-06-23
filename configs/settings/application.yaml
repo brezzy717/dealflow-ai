@@ -7,4 +7,7 @@ database:
 cache:
   url: ${REDIS_URL}
 scoring:
-  refresh_interval_minutes: 5
+  # Data ingestion + rescoring runs Mon/Wed/Fri; lead assignment runs Tue 06:00.
+  # These are scheduler cron expressions, not a polling interval.
+  ingestion_cron: "0 10 * * 1,3,5"
+  assignment_cron: "0 6 * * 2"

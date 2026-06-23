@@ -1,11 +1,70 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
+from starlette.responses import Response
 
-from .api.routes import router
+from .api.admin import router as admin_router
+from .api.billing import router as billing_router
+from .api.dashboard import router as dashboard_router
+from .api.dealroom import router as dealroom_router
+from .api.feedback import router as feedback_router
+from .api.prospects import router as prospects_router
+from .api.routes import api_router, router
+from .api.settings import router as settings_router
+from .config import Settings, get_settings
+from .core.logging import configure_logging
+
+SECURITY_HEADERS = {
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "Referrer-Policy": "no-referrer",
+    "Strict-Transport-Security": "max-age=63072000; includeSubDomains",
+}
 
 
-def create_app() -> FastAPI:
-    app = FastAPI(title="DealFlow AI API", version="0.1.0")
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    """Attach a baseline set of hardening headers to every response."""
+
+    async def dispatch(self, request: Request, call_next) -> Response:
+        response = await call_next(request)
+        for header, value in SECURITY_HEADERS.items():
+            response.headers.setdefault(header, value)
+        return response
+
+
+def create_app(settings: Settings | None = None) -> FastAPI:
+    configure_logging()
+    config = settings or get_settings()
+
+    app = FastAPI(
+        title="DealFlow AI API",
+        version="0.1.0",
+        docs_url=config.docs_url,
+        openapi_url=config.openapi_url,
+    )
+
+    app.add_middleware(SecurityHeadersMiddleware)
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=config.cors_allow_origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
+    # Health/probe routes stay at the root; product routes are namespaced under
+    # the configured API prefix.
     app.include_router(router)
+    app.include_router(api_router)
+    app.include_router(prospects_router)
+    app.include_router(feedback_router)
+    app.include_router(dashboard_router)
+    app.include_router(dealroom_router)
+    app.include_router(admin_router)
+    app.include_router(settings_router)
+    app.include_router(billing_router)
+
     return app
 
 

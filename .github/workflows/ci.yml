@@ -1,0 +1,114 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/backend
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: dealflow_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/dealflow_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install
+        run: pip install -e .[dev]
+      - name: Install scoring + ingestion packages
+        run: pip install -e ../../services/scoring_engine ../../services/data_ingestion
+      - name: Lint
+        run: ruff check src
+      - name: Type check
+        run: mypy src
+      - name: Apply migrations (schema + RLS)
+        run: alembic upgrade head
+      - name: Test
+        run: pytest
+      - name: Migration downgrade round-trip
+        run: alembic downgrade base
+
+  scoring-engine:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: services/scoring_engine
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install
+        run: pip install -e .[dev]
+      - name: Lint
+        run: ruff check src
+      - name: Test
+        run: pytest
+
+  data-ingestion:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: services/data_ingestion
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install
+        run: pip install -e .[dev]
+      - name: Lint
+        run: ruff check src
+      - name: Test
+        run: pytest
+
+  worker:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/worker
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install
+        run: pip install -e .[dev]
+      - name: Lint
+        run: ruff check src
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install
+        run: npm install
+      - name: Lint
+        run: npm run lint
+      - name: Build
+        run: npm run build
